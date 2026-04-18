@@ -16,15 +16,14 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow sticky top-0 z-50">
+    <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl shadow-xl shadow-slate-950/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-3 transition hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg shadow-cyan-500/20 flex items-center justify-center ring-1 ring-white/10">
+              <span className="text-white font-black text-lg">C</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:inline">CloudMart</span>
+            <span className="text-xl font-semibold text-white hidden sm:inline">CloudMart</span>
           </Link>
 
           {/* Search Bar */}
@@ -32,13 +31,12 @@ export const Header = () => {
             <input
               type="text"
               placeholder="Search products..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-2 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
             />
           </div>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/products" className="text-gray-700 hover:text-blue-600 transition">
+          <nav className="hidden md:flex items-center gap-6">
+            <Link to="/products" className="text-slate-200 hover:text-cyan-300 transition hover:-translate-y-0.5">
               Products
             </Link>
             
@@ -54,7 +52,7 @@ export const Header = () => {
               </Link>
             )}
 
-            <Link to="/cart" className="relative text-gray-700 hover:text-blue-600 transition">
+            <Link to="/cart" className="relative text-slate-200 hover:text-cyan-300 transition hover:-translate-y-0.5">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
@@ -67,27 +65,27 @@ export const Header = () => {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition">
+                <Link to="/profile" className="text-slate-200 hover:text-cyan-300 transition hover:-translate-y-0.5">
                   {user?.name}
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  className="px-4 py-2 rounded-2xl border border-slate-700 text-slate-200 hover:bg-slate-900/80 transition"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition"
+                  className="rounded-full border border-cyan-500 px-4 py-2 text-cyan-300 hover:bg-cyan-500/10 transition"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  className="rounded-full bg-cyan-400 px-4 py-2 text-slate-950 font-semibold shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-transform"
                 >
                   Register
                 </Link>

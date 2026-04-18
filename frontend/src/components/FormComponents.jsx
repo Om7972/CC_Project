@@ -22,9 +22,9 @@ export const FormInput = ({
   return (
     <div className="mb-4">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-slate-200 mb-2">
           {label}
-          {required && <span className="text-red-500"> *</span>}
+          {required && <span className="text-cyan-300"> *</span>}
         </label>
       )}
 
@@ -36,10 +36,10 @@ export const FormInput = ({
           onChange={onChange}
           onBlur={onBlur}
           placeholder={placeholder}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
+          className={`w-full rounded-3xl border px-4 py-3 text-slate-100 bg-slate-900/80 shadow-sm shadow-slate-950/20 focus:outline-none transition duration-300 ease-in-out ${
             touched && error
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:ring-blue-500'
+              ? 'border-red-500 focus:ring-red-400'
+              : 'border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30'
           }`}
           {...props}
         />
@@ -48,14 +48,14 @@ export const FormInput = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+            className="absolute right-3 top-3 text-slate-400 hover:text-slate-100"
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         )}
       </div>
 
-      {touched && error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {touched && error && <p className="mt-1 text-sm text-red-400">{error}</p>}
     </div>
   );
 };

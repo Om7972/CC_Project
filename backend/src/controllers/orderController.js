@@ -44,11 +44,11 @@ const createOrder = async (req, res, next) => {
 
     const orderId = generateOrderId();
 
-    // Create payment intent (Stripe)
-    const paymentIntent = await createPaymentIntent(totalAmount, 'usd', {
-      orderId,
-      buyerId: req.user.userId,
-    });
+    // Skip payment processing for now - TODO: integrate Stripe
+    // const paymentIntent = await createPaymentIntent(totalAmount, 'usd', {
+    //   orderId,
+    //   buyerId: req.user.userId,
+    // });
 
     const order = new Order({
       orderId,
@@ -59,9 +59,9 @@ const createOrder = async (req, res, next) => {
       subtotal,
       tax,
       totalAmount,
-      paymentMethod,
-      paymentStatus: 'pending',
-      stripePaymentIntentId: paymentIntent.id,
+      paymentMethod: paymentMethod || 'test',
+      paymentStatus: 'completed', // Set to completed for testing
+      // stripePaymentIntentId: paymentIntent.id,
       shippingAddress,
       billingAddress,
       status: 'placed',
@@ -86,7 +86,7 @@ const createOrder = async (req, res, next) => {
 
     res.status(201).json({
       order,
-      clientSecret: paymentIntent.client_secret,
+      // clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
     next(error);

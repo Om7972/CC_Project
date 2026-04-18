@@ -1,8 +1,11 @@
 import api from './api';
 
 export const authAPI = {
-  login: (idToken) =>
-    api.post('/auth/login', { idToken }),
+  register: (data) =>
+    api.post('/auth/register', data),
+
+  login: (data) =>
+    api.post('/auth/login', data),
   
   googleAuth: (idToken) =>
     api.post('/auth/google-auth', { idToken }),

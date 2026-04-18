@@ -8,8 +8,10 @@ import { Header } from './components/Header';
 // Pages
 import { LandingPage } from './pages/Landing';
 import { LoginPage } from './pages/Login';
+import { RegisterPage } from './pages/Register';
 import { ProductsPage } from './pages/Products';
 import { CartPage } from './pages/Cart';
+import { CheckoutPage } from './pages/Checkout';
 
 const queryClient = new QueryClient();
 
@@ -29,8 +31,10 @@ function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
               {/* Add more routes here */}
             </Routes>
           </main>

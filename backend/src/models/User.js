@@ -4,8 +4,9 @@ const userSchema = new mongoose.Schema(
   {
     cognitoId: {
       type: String,
-      required: true,
-      unique: true,
+      required: function() {
+        return this.loginProvider === 'cognito' || this.loginProvider === 'google';
+      },
     },
     email: {
       type: String,
@@ -22,6 +23,13 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+    },
+    password: {
+      type: String,
+      required: function() {
+        return this.loginProvider === 'local';
+      },
+      select: false,
     },
     role: {
       type: String,
@@ -45,11 +53,13 @@ const userSchema = new mongoose.Schema(
     },
     loginProvider: {
       type: String,
-      enum: ['cognito', 'google'],
+      enum: ['cognito', 'google', 'local'],
       default: 'cognito',
     },
   },
   { timestamps: true }
 );
+
+userSchema.index({ cognitoId: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('User', userSchema);

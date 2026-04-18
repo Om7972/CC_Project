@@ -5,6 +5,7 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
+router.post('/register', authLimiter, authController.register);
 router.post('/login', authLimiter, authController.login);
 router.post('/google-auth', authLimiter, authController.googleAuth);
 router.post('/logout', verifyToken, authController.logout);

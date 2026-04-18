@@ -2,30 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+:root {
+  color-scheme: dark;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+html {
+  scroll-behavior: smooth;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+  min-height: 100vh;
+  background-image: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.14), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.08), transparent 20%),
+    linear-gradient(180deg, #020617 0%, #0b1121 100%);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* Smooth transitions */
 * {
-  @apply transition-colors duration-200;
+  scrollbar-width: thin;
+  scrollbar-color: #4f46e5 #0f172a;
 }
 
-/* Loading animation */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(79, 70, 229, 0.8);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 1);
+}
+
+* {
+  @apply transition duration-300 ease-out;
+}
+
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;
@@ -35,14 +54,85 @@
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-shimmer {
-  animation: shimmer 2s infinite;
+  animation: shimmer 2s infinite linear;
   background: linear-gradient(
     to right,
-    #f6f7f8 0%,
-    #edeef1 20%,
-    #f6f7f8 40%,
-    #f6f7f8 100%
+    rgba(148, 163, 184, 0.12) 0%,
+    rgba(148, 163, 184, 0.28) 20%,
+    rgba(148, 163, 184, 0.12) 40%,
+    rgba(148, 163, 184, 0.12) 100%
   );
   background-size: 1000px 100%;
+}
+
+.animate-float {
+  animation: float 7s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 28s linear infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse 6s ease-in-out infinite;
+}
+
+@keyframes tilt {
+  0%, 100% { transform: perspective(900px) rotateX(0deg) rotateY(0deg); }
+  50% { transform: perspective(900px) rotateX(2deg) rotateY(-2deg); }
+}
+
+.animate-tilt {
+  animation: tilt 12s ease-in-out infinite;
+}
+
+.button-glow {
+  @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 text-slate-950 font-semibold shadow-lg shadow-cyan-500/20;
+}
+
+.card-hover {
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-6px) scale(1.003);
+  box-shadow: 0 28px 80px -32px rgba(56, 189, 248, 0.6);
+}
+
+.cursor-float {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='10' fill='rgba(56,189,248,0.85)'/%3E%3C/svg%3E"), auto;
 }

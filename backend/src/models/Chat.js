@@ -71,7 +71,6 @@ const chatSchema = new mongoose.Schema(
 );
 
 chatSchema.index({ buyerId: 1, vendorId: 1 });
-chatSchema.index({ conversationId: 1 });
 chatSchema.index({ lastMessageTime: -1 });
 
 module.exports = mongoose.model('Chat', chatSchema);

@@ -88,6 +88,5 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ buyerId: 1 });
 orderSchema.index({ vendorId: 1 });
 orderSchema.index({ status: 1 });
-orderSchema.index({ orderId: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);
