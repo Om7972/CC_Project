@@ -2,6 +2,8 @@ import { create } from 'zustand';
 
 export const useCartStore = create((set) => ({
   items: JSON.parse(localStorage.getItem('cart')) || [],
+  total: 0,
+  itemCount: 0,
   
   addItem: (product, quantity = 1) => {
     set((state) => {
@@ -19,7 +21,11 @@ export const useCartStore = create((set) => ({
       }
       
       localStorage.setItem('cart', JSON.stringify(newItems));
-      return { items: newItems };
+      return {
+        items: newItems,
+        total: newItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+        itemCount: newItems.reduce((acc, item) => acc + item.quantity, 0),
+      };
     });
   },
 
@@ -27,7 +33,11 @@ export const useCartStore = create((set) => ({
     set((state) => {
       const newItems = state.items.filter(item => item.id !== productId);
       localStorage.setItem('cart', JSON.stringify(newItems));
-      return { items: newItems };
+      return {
+        items: newItems,
+        total: newItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+        itemCount: newItems.reduce((acc, item) => acc + item.quantity, 0),
+      };
     });
   },
 
@@ -39,13 +49,17 @@ export const useCartStore = create((set) => ({
           : item
       );
       localStorage.setItem('cart', JSON.stringify(newItems));
-      return { items: newItems };
+      return {
+        items: newItems,
+        total: newItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+        itemCount: newItems.reduce((acc, item) => acc + item.quantity, 0),
+      };
     });
   },
 
   clearCart: () => {
     localStorage.removeItem('cart');
-    set({ items: [] });
+    set({ items: [], total: 0, itemCount: 0 });
   },
 
   getTotal: () => {

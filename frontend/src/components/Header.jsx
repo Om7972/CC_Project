@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import toast from 'react-hot-toast';
 
 export const Header = () => {
+  const location = useLocation();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { getItemCount } = useCartStore();
   const cartCount = getItemCount();
@@ -36,9 +38,18 @@ export const Header = () => {
           </div>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link to="/products" className="text-slate-200 hover:text-cyan-300 transition hover:-translate-y-0.5">
-              Products
-            </Link>
+            {[
+              { to: '/products', label: 'Products' },
+              { to: '/subscription', label: 'Subscription' },
+              { to: '/notifications', label: 'Notifications' },
+            ].map((item) => (
+              <Link key={item.to} to={item.to} className="relative px-2 py-1 text-slate-200 hover:text-cyan-300 transition hover:-translate-y-0.5">
+                {location.pathname === item.to && (
+                  <motion.span layoutId="nav-indicator" className="absolute inset-0 -z-10 rounded-lg bg-cyan-500/20" />
+                )}
+                {item.label}
+              </Link>
+            ))}
             
             {isAuthenticated && user?.role === 'vendor' && (
               <Link to="/vendor" className="text-gray-700 hover:text-blue-600 transition">
@@ -57,7 +68,7 @@ export const Header = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   {cartCount}
                 </span>
               )}
