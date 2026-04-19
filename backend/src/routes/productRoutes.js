@@ -1,10 +1,14 @@
 const express = require('express');
-const { verifyToken, verifyRole } = require('../middleware/auth');
+const { verifyToken, verifyRole, optionalToken } = require('../middleware/auth');
 const productController = require('../controllers/productController');
+const recommendationController = require('../controllers/recommendationController');
 
 const router = express.Router();
 
 router.get('/featured', productController.getFeaturedProducts);
+router.get('/meta/categories', productController.getCategories);
+router.get('/recommendations', optionalToken, recommendationController.getRecommendations);
+router.post('/recommendations', optionalToken, recommendationController.getRecommendations);
 router.get('/', productController.getProducts);
 router.get('/:id', productController.getProductById);
 

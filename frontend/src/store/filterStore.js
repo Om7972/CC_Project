@@ -3,10 +3,11 @@ import { create } from 'zustand';
 export const useFilterStore = create((set) => ({
   filters: {
     category: '',
-    minPrice: 0,
-    maxPrice: 1000,
+    minPrice: '',
+    maxPrice: '',
     search: '',
     sortBy: 'newest',
+    featuredOnly: false,
   },
 
   setFilter: (filterName, value) => {
@@ -28,10 +29,11 @@ export const useFilterStore = create((set) => ({
     set({
       filters: {
         category: '',
-        minPrice: 0,
-        maxPrice: 1000,
+        minPrice: '',
+        maxPrice: '',
         search: '',
         sortBy: 'newest',
+        featuredOnly: false,
       },
     });
   },

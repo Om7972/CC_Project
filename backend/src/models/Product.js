@@ -40,6 +40,12 @@ const productSchema = new mongoose.Schema(
       },
     ],
     thumbnail: String,
+    /** Populated by Image Resizer Lambda after processing uploads under raw/ */
+    processedImageUrls: {
+      w800: String,
+      w400: String,
+      w150: String,
+    },
     sku: {
       type: String,
       unique: true,

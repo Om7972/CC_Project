@@ -1,0 +1,130 @@
+# CloudMart — AWS Lambda (Serverless Framework v3)
+# From this directory: npm install && npx serverless deploy
+#
+# Sharp: for best compatibility with Lambda Linux, install with:
+#   npm install --cpu=x64 --os=linux --libc=glibc sharp
+# (often done in CI on Linux; see AWS docs for native modules.)
+
+service: cloudmart-lambdas
+
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 29
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+  environment:
+    MONGO_URI: ${env:MONGO_URI, ''}
+    AWS_S3_BUCKET: ${env:AWS_S3_BUCKET, ''}
+    AWS_SES_FROM_EMAIL: ${env:AWS_SES_FROM_EMAIL, ''}
+    CDN_BASE_URL: ${env:CDN_BASE_URL, ''}
+    REDIS_URL: ${env:REDIS_URL, ''}
+    OPENAI_API_KEY: ${env:OPENAI_API_KEY, ''}
+    OPENAI_MODEL: ${env:OPENAI_MODEL, 'gpt-4o-mini'}
+    CACHE_TTL_SECONDS: ${env:CACHE_TTL_SECONDS, '1800'}
+    CORS_ORIGIN: ${env:CORS_ORIGIN, '*'}
+    WEEKLY_REPORT_WEEKDAY: ${env:WEEKLY_REPORT_WEEKDAY, '0'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+          Resource:
+            - arn:aws:s3:::${env:AWS_S3_BUCKET, '*'}/*
+        - Effect: Allow
+          Action:
+            - s3:ListBucket
+          Resource:
+            - arn:aws:s3:::${env:AWS_S3_BUCKET, '*'}
+
+functions:
+  orderProcessor:
+    handler: handlers/orderProcessor.handler
+    description: SQS — inventory, SES, vendor notification record
+    memorySize: 512
+    timeout: 60
+    reservedConcurrency: 5
+    events:
+      - sqs:
+          arn: !GetAtt OrderQueue.Arn
+          batchSize: 5
+          maximumBatchingWindow: 5
+          functionResponseType: ReportBatchItemFailures
+
+  imageResizer:
+    handler: handlers/imageResizer.handler
+    description: S3 raw/ — Sharp WebP to processed/
+    memorySize: 2048
+    timeout: 60
+    events:
+      - s3:
+          existing: true
+          bucket: ${env:AWS_S3_BUCKET}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: raw/
+
+  recommender:
+    handler: handlers/recommender.handler
+    description: HTTP API — OpenAI + Redis cache
+    memorySize: 512
+    timeout: 29
+    events:
+      - httpApi:
+          path: /recommendations
+          method: post
+
+  analyticsAggregator:
+    handler: handlers/analyticsAggregator.handler
+    description: Daily analytics + weekly vendor email (UTC weekday from WEEKLY_REPORT_WEEKDAY)
+    memorySize: 512
+    timeout: 120
+    events:
+      - schedule:
+          rate: rate(24 hours)
+
+resources:
+  Resources:
+    OrderQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: cloudmart-order-${self:provider.stage}
+        VisibilityTimeout: 120
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt OrderDeadLetterQueue.Arn
+          maxReceiveCount: 5
+
+    OrderDeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: cloudmart-order-dlq-${self:provider.stage}
+
+  Outputs:
+    OrderQueueUrl:
+      Description: Set backend AWS_SQS_QUEUE_URL to this value
+      Value: !Ref OrderQueue
+    OrderQueueArn:
+      Value: !GetAtt OrderQueue.Arn

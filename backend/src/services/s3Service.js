@@ -26,10 +26,13 @@ const generatePresignedUrl = async (fileKey, contentType) => {
   }
 };
 
-const generateFileKey = (vendorId, type, fileName) => {
+const generateFileKey = (vendorId, type, fileName, productId = null) => {
   const timestamp = Date.now();
   const random = crypto.randomBytes(4).toString('hex');
-  const extension = fileName.split('.').pop();
+  const extension = fileName.includes('.') ? fileName.split('.').pop() : 'jpg';
+  if (type === 'products' && productId) {
+    return `raw/products/${productId}/${timestamp}-${random}.${extension}`;
+  }
   return `${type}/${vendorId}/${timestamp}-${random}.${extension}`;
 };
 

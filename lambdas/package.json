@@ -1,0 +1,26 @@
+{
+  "name": "cloudmart-lambdas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CloudMart AWS Lambda handlers (Serverless Framework)",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "deploy:dev": "serverless deploy --stage dev",
+    "remove": "serverless remove",
+    "package": "serverless package"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.450.0",
+    "@aws-sdk/client-ses": "^3.450.0",
+    "ioredis": "^5.3.2",
+    "mongoose": "^8.0.0",
+    "openai": "^4.52.0",
+    "sharp": "^0.33.4"
+  },
+  "devDependencies": {
+    "serverless": "^3.38.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

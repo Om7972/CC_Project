@@ -12,6 +12,26 @@ export const useProducts = (params) => {
   });
 };
 
+export const useProductCategories = () => {
+  return useQuery({
+    queryKey: ['productCategories'],
+    queryFn: () => productAPI.getCategories(),
+    staleTime: 60 * 60 * 1000,
+  });
+};
+
+export const useRecommendations = (historyIds) => {
+  const historyKey = (historyIds || []).join(',');
+  return useQuery({
+    queryKey: ['recommendations', historyKey],
+    queryFn: () =>
+      productAPI.getRecommendations({
+        history: historyKey,
+      }),
+    staleTime: 30 * 60 * 1000,
+  });
+};
+
 /**
  * Hook for fetching single product
  */

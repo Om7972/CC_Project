@@ -35,6 +35,7 @@ const publishOrderEvent = async (orderData) => {
     totalAmount: orderData.totalAmount,
     buyerEmail: orderData.buyerEmail,
     vendorEmail: orderData.vendorEmail,
+    items: orderData.items,
     timestamp: new Date().toISOString(),
   };
 

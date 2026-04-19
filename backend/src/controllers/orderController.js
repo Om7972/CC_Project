@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Vendor = require('../models/Vendor');
 const { createPaymentIntent, confirmPaymentIntent } = require('../services/paymentService');
 const { publishOrderEvent } = require('../services/sqsService');
 const User = require('../models/User');
@@ -21,6 +22,7 @@ const createOrder = async (req, res, next) => {
     // Calculate totals
     let subtotal = 0;
     const orderItems = [];
+    let firstProduct = null;
 
     for (const item of items) {
       const product = await Product.findById(item.productId);
@@ -28,14 +30,20 @@ const createOrder = async (req, res, next) => {
         return res.status(404).json({ error: `Product ${item.productId} not found` });
       }
 
+      if (!firstProduct) firstProduct = product;
+
       subtotal += product.price * item.quantity;
       orderItems.push({
         productId: product._id,
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-        image: product.thumbnail,
+        image: product.thumbnail || product.processedImageUrls?.w400 || product.images?.[0]?.url,
       });
+    }
+
+    if (!firstProduct) {
+      return res.status(400).json({ error: 'Invalid order items' });
     }
 
     const taxRate = 0.1; // 10% tax
@@ -50,11 +58,12 @@ const createOrder = async (req, res, next) => {
     //   buyerId: req.user.userId,
     // });
 
+    const vendor = await Vendor.findById(firstProduct.vendorId).populate('userId', 'email');
+
     const order = new Order({
       orderId,
       buyerId: req.user.userId,
-      vendorId: orderItems[0].productId ? 
-        (await Product.findById(orderItems[0].productId)).vendorId : null,
+      vendorId: firstProduct.vendorId,
       items: orderItems,
       subtotal,
       tax,
@@ -78,7 +87,13 @@ const createOrder = async (req, res, next) => {
         vendorId: order.vendorId,
         totalAmount,
         buyerEmail: buyer.email,
-        vendorEmail: (await User.findById(order.vendorId))?.email,
+        vendorEmail: vendor?.userId?.email,
+        items: orderItems.map((i) => ({
+          productId: i.productId,
+          name: i.name,
+          quantity: i.quantity,
+          price: i.price,
+        })),
       });
     } catch (error) {
       console.error('Error publishing order event:', error);

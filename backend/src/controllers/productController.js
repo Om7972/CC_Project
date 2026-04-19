@@ -24,26 +24,61 @@ const createProduct = async (req, res, next) => {
 
 const getProducts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, category, search, vendorId } = req.query;
+    const {
+      page = 1,
+      limit = 20,
+      category,
+      search,
+      vendorId,
+      minPrice,
+      maxPrice,
+      sortBy = 'newest',
+      featured,
+    } = req.query;
     const skip = (page - 1) * limit;
 
     const filter = { status: 'active' };
     if (category) filter.category = category;
     if (vendorId) filter.vendorId = vendorId;
+    if (featured === 'true' || featured === '1') filter.isFeatured = true;
 
-    let query = Product.find(filter);
-
-    if (search) {
-      query = query.find({ $text: { $search: search } });
+    if (minPrice !== undefined && minPrice !== '') {
+      filter.price = { ...filter.price, $gte: Number(minPrice) };
+    }
+    if (maxPrice !== undefined && maxPrice !== '') {
+      filter.price = { ...filter.price, $lte: Number(maxPrice) };
     }
 
-    const products = await query
+    const searchFilter = search
+      ? { ...filter, $text: { $search: search } }
+      : filter;
+
+    let sort = { createdAt: -1 };
+    switch (sortBy) {
+      case 'price_asc':
+        sort = { price: 1 };
+        break;
+      case 'price_desc':
+        sort = { price: -1 };
+        break;
+      case 'rating':
+        sort = { rating: -1, reviewCount: -1 };
+        break;
+      case 'popular':
+        sort = { reviewCount: -1 };
+        break;
+      case 'newest':
+      default:
+        sort = { createdAt: -1 };
+    }
+
+    const products = await Product.find(searchFilter)
       .populate('vendorId', 'storeName rating')
       .skip(skip)
       .limit(parseInt(limit))
-      .sort({ createdAt: -1 });
+      .sort(sort);
 
-    const total = await Product.countDocuments(filter);
+    const total = await Product.countDocuments(searchFilter);
 
     res.json({
       products,
@@ -53,6 +88,15 @@ const getProducts = async (req, res, next) => {
         pages: Math.ceil(total / limit),
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCategories = async (req, res, next) => {
+  try {
+    const categories = await Product.distinct('category', { status: 'active' });
+    res.json({ categories: categories.sort((a, b) => a.localeCompare(b)) });
   } catch (error) {
     next(error);
   }
@@ -116,13 +160,13 @@ const deleteProduct = async (req, res, next) => {
 
 const getPresignedUrl = async (req, res, next) => {
   try {
-    const { fileName, contentType } = req.body;
+    const { fileName, contentType, productId } = req.body;
 
     if (!fileName || !contentType) {
       return res.status(400).json({ error: 'fileName and contentType required' });
     }
 
-    const fileKey = generateFileKey(req.user.userId, 'products', fileName);
+    const fileKey = generateFileKey(req.user.userId, 'products', fileName, productId);
     const presignedUrl = await generatePresignedUrl(fileKey, contentType);
 
     res.json({ presignedUrl, fileKey });
@@ -146,6 +190,7 @@ const getFeaturedProducts = async (req, res, next) => {
 module.exports = {
   createProduct,
   getProducts,
+  getCategories,
   getProductById,
   updateProduct,
   deleteProduct,
