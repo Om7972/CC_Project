@@ -10,7 +10,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useProducts, useProductCategories, useRecommendations } from '../hooks/useApi';
-import { ProductCard } from '../components/ProductCard';
+import ProductCard from '../components/ProductCard';
 import { LoadingSkeleton } from '../components/Loading';
 import { useFilterStore } from '../store/filterStore';
 import { useCartStore } from '../store/cartStore';

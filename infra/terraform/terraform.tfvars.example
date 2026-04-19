@@ -1,0 +1,27 @@
+# Copy to terraform.tfvars (never commit real secrets)
+aws_region   = "us-east-1"
+project_name = "cloudmart"
+environment  = "production"
+
+# Public hostname served by CloudFront + ACM (must match)
+domain_name = "app.example.com"
+
+# Route53 hosted zone in this account (optional — leave blank to create ACM DNS records manually)
+hosted_zone_id = "Z1234567890ABC"
+
+# MongoDB Atlas SRV or self-hosted URI (sensitive)
+mongo_uri = "mongodb+srv://user:pass@cluster.mongodb.net/cloudmart?retryWrites=true&w=majority"
+
+alert_email = "ops@example.com"
+
+github_org  = "myorg"
+github_repo = "CC_Project"
+
+# If this account already has the GitHub OIDC provider, paste its ARN here and TF will not create a duplicate
+github_oidc_provider_arn = ""
+
+# Optional: SQS queue used by Lambda order processor (least-privilege IAM + dashboard)
+sqs_queue_arn = ""
+
+# Container tag pushed by CI (default latest)
+image_tag = "latest"

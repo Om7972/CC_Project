@@ -1,23 +1,24 @@
-FROM node:18-alpine
+# syntax=docker/dockerfile:1
+# Multi-stage production image for CloudMart API (Node.js)
 
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Install dependencies
-RUN npm ci --only=production
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
-# Copy application code
-COPY src/ ./src/
-COPY .env .env
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+COPY src ./src
 
-# Expose port
+USER nodejs
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5000/health', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:5000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
-# Start application
 CMD ["node", "src/server.js"]

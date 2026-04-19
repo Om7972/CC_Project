@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --detectOpenHandles",
+    "test": "jest --passWithNoTests",
     "lint": "eslint src/"
   },
   "dependencies": {

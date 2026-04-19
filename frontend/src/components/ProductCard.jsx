@@ -156,3 +156,5 @@ export const ProductCard = ({ product, onAddToCart, onView, variant = 'default' 
     </div>
   );
 };
+
+export default ProductCard;

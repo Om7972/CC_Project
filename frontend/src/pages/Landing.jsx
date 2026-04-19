@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../hooks/useApi';
-import { ProductCard } from '../components/ProductCard';
+import ProductCard from '../components/ProductCard';
 import { LoadingSkeleton } from '../components/Loading';
 import { useCartStore } from '../store/cartStore';
 import toast from 'react-hot-toast';
