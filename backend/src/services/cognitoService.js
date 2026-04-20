@@ -1,8 +1,22 @@
-const { CognitoIdentityProviderClient, GetUserCommand, AdminGetUserCommand } = require('@aws-sdk/client-cognito-identity-provider');
+const { 
+  CognitoIdentityProviderClient, 
+  GetUserCommand, 
+  AdminGetUserCommand,
+  SignUpCommand,
+  InitiateAuthCommand,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
+  ConfirmSignUpCommand,
+  ResendConfirmationCodeCommand,
+  ChangePasswordCommand,
+  GlobalSignOutCommand
+} = require('@aws-sdk/client-cognito-identity-provider');
 const jwt = require('jsonwebtoken');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 
 const cognitoClient = new CognitoIdentityProviderClient({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION || process.env.COGNITO_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -68,5 +82,121 @@ module.exports = {
   verifyIdToken,
   getUserFromCognito,
   createOrUpdateLocalUser,
+  cognitoClient,
+};
+
+
+const signUpUser = async (email, password, name) => {
+  const command = new SignUpCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID,
+    Username: email,
+    Password: password,
+    UserAttributes: [
+      { Name: 'email', Value: email },
+      { Name: 'name', Value: name }
+    ]
+  });
+  return cognitoClient.send(command);
+};
+
+const authenticateUser = async (email, password) => {
+  const command = new InitiateAuthCommand({
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: process.env.COGNITO_CLIENT_ID,
+    AuthParameters: {
+      USERNAME: email,
+      PASSWORD: password
+    }
+  });
+  return cognitoClient.send(command);
+};
+
+const forgotPassword = async (email) => {
+  const command = new ForgotPasswordCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID,
+    Username: email
+  });
+  return cognitoClient.send(command);
+};
+
+const confirmForgotPassword = async (email, code, newPassword) => {
+  const command = new ConfirmForgotPasswordCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID,
+    Username: email,
+    ConfirmationCode: code,
+    Password: newPassword
+  });
+  return cognitoClient.send(command);
+};
+
+const confirmSignUp = async (email, code) => {
+  const command = new ConfirmSignUpCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID,
+    Username: email,
+    ConfirmationCode: code
+  });
+  return cognitoClient.send(command);
+};
+
+const resendConfirmationCode = async (email) => {
+  const command = new ResendConfirmationCodeCommand({
+    ClientId: process.env.COGNITO_CLIENT_ID,
+    Username: email
+  });
+  return cognitoClient.send(command);
+};
+
+const changePassword = async (accessToken, previousPassword, proposedPassword) => {
+  const command = new ChangePasswordCommand({
+    AccessToken: accessToken,
+    PreviousPassword: previousPassword,
+    ProposedPassword: proposedPassword
+  });
+  return cognitoClient.send(command);
+};
+
+const globalSignOut = async (accessToken) => {
+  const command = new GlobalSignOutCommand({
+    AccessToken: accessToken
+  });
+  return cognitoClient.send(command);
+};
+
+const generate2FASecret = (email) => {
+  const secret = speakeasy.generateSecret({
+    name: `CloudMart (${email})`,
+    issuer: 'CloudMart'
+  });
+  return secret;
+};
+
+const verify2FAToken = (secret, token) => {
+  return speakeasy.totp.verify({
+    secret,
+    encoding: 'base32',
+    token,
+    window: 2
+  });
+};
+
+const generateQRCode = async (otpauthUrl) => {
+  return QRCode.toDataURL(otpauthUrl);
+};
+
+module.exports = {
+  verifyIdToken,
+  getUserFromCognito,
+  createOrUpdateLocalUser,
+  signUpUser,
+  authenticateUser,
+  forgotPassword,
+  confirmForgotPassword,
+  confirmSignUp,
+  resendConfirmationCode,
+  changePassword,
+  globalSignOut,
+  generate2FASecret,
+  verify2FAToken,
+  generateQRCode,
   cognitoClient,
 };

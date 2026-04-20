@@ -26,6 +26,22 @@ const generatePresignedUrl = async (fileKey, contentType) => {
   }
 };
 
+const getPresignedUrl = async (bucket, key, contentType, expiresIn = 3600) => {
+  try {
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType,
+    });
+
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn });
+    return presignedUrl;
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
+    throw error;
+  }
+};
+
 const generateFileKey = (vendorId, type, fileName, productId = null) => {
   const timestamp = Date.now();
   const random = crypto.randomBytes(4).toString('hex');
@@ -52,6 +68,7 @@ const deleteFromS3 = async (fileKey) => {
 
 module.exports = {
   generatePresignedUrl,
+  getPresignedUrl,
   generateFileKey,
   deleteFromS3,
   s3Client,
