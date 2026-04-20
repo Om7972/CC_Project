@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const vendorSchema = new mongoose.Schema(
   {
-    userId: {
+    owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -13,79 +13,40 @@ const vendorSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    description: {
-      type: String,
-    },
-    logo: {
-      type: String,
-    },
-    banner: {
-      type: String,
-    },
+    storeDescription: String,
+    storeLogo: String,
+    storeBanner: String,
     category: {
       type: String,
-      required: true,
+      enum: ['Electronics', 'Fashion', 'Books', 'Digital', 'Home', 'Sports', 'Other'],
+      required: true
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected', 'suspended'],
+      enum: ['pending', 'approved', 'suspended'],
       default: 'pending',
     },
     rating: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 5,
+      average: { type: Number, min: 0, max: 5, default: 0 },
+      count: { type: Number, default: 0 },
     },
-    reviewCount: {
-      type: Number,
-      default: 0,
-    },
-    totalSales: {
-      type: Number,
-      default: 0,
-    },
-    totalEarnings: {
-      type: Number,
-      default: 0,
-    },
-    bankAccount: {
-      accountHolder: String,
-      accountNumber: String,
-      routingNumber: String,
-      bankName: String,
-    },
-    businessInfo: {
-      businessName: String,
-      taxId: String,
-      businessAddress: String,
-      businessRegistration: String,
-    },
-    policies: {
-      returnPolicy: String,
-      shippingPolicy: String,
-      refundPolicy: String,
-    },
+    totalSales: { type: Number, default: 0 },
+    totalRevenue: { type: Number, default: 0 },
+    stripeAccountId: String,
+    commissionRate: { type: Number, default: 10, min: 0, max: 100 },
+    plan: { type: String, enum: ['free', 'pro', 'enterprise'] },
     socialLinks: {
-      facebook: String,
       instagram: String,
       twitter: String,
+      website: String,
     },
-    verificationDocuments: [
-      {
-        type: String,
-        url: String,
-      },
-    ],
-    approvedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-    approvalDate: Date,
-    rejectionReason: String,
-    suspensionReason: String,
+    isVerified: { type: Boolean, default: false },
+    verifiedAt: Date,
   },
   { timestamps: true }
 );
+
+vendorSchema.index({ status: 1 });
+vendorSchema.index({ category: 1 });
 
 module.exports = mongoose.model('Vendor', vendorSchema);

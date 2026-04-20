@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const { get, set, CacheKeys } = require('../config/redis');
 
-const verifyToken = async (req, res, next) => {
+const verifyJWT = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -16,7 +18,7 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-const verifyRole = (...roles) => {
+const requireRole = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -28,6 +30,19 @@ const verifyRole = (...roles) => {
 
     next();
   };
+};
+
+const attachUser = async (req, res, next) => {
+  if (!req.user?.id && !req.user?._id) return next();
+  const userId = req.user.id || req.user._id;
+  const cacheKey = `${CacheKeys.USER_PROFILE}_${userId}`;
+  let user = await get(cacheKey);
+  if (!user) {
+    user = await User.findById(userId).lean();
+    if (user) await set(cacheKey, user, 60 * 5);
+  }
+  req.currentUser = user || null;
+  next();
 };
 
 const optionalToken = async (req, res, next) => {
@@ -43,4 +58,7 @@ const optionalToken = async (req, res, next) => {
   next();
 };
 
-module.exports = { verifyToken, verifyRole, optionalToken };
+const verifyToken = verifyJWT;
+const verifyRole = requireRole;
+
+module.exports = { verifyJWT, verifyToken, attachUser, requireRole, verifyRole, optionalToken };

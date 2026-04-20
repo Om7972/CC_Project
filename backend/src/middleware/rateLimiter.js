@@ -22,4 +22,18 @@ const uploadLimiter = rateLimit({
   message: 'Upload limit exceeded, please try again later',
 });
 
-module.exports = { authLimiter, apiLimiter, uploadLimiter };
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const proApiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { authLimiter, apiLimiter, uploadLimiter, generalLimiter, proApiLimiter };
