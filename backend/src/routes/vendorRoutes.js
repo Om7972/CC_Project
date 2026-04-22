@@ -1,6 +1,6 @@
 const express = require('express');
 const { verifyToken, requireRole, optionalToken } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 const {
   registerVendorSchema,
   updateVendorSchema,
@@ -32,17 +32,17 @@ router.get('/', listVendors);
 router.get('/:storeSlug', getVendorStorefront);
 
 // Protected vendor routes
-router.post('/register', verifyToken, validate(registerVendorSchema), registerVendor);
+router.post('/register', verifyToken, validateRequest(registerVendorSchema), registerVendor);
 router.get('/me', verifyToken, requireRole('vendor', 'admin'), getMyVendor);
-router.patch('/me', verifyToken, requireRole('vendor', 'admin'), validate(updateVendorSchema), updateMyVendor);
+router.patch('/me', verifyToken, requireRole('vendor', 'admin'), validateRequest(updateVendorSchema), updateMyVendor);
 router.post('/me/logo', verifyToken, requireRole('vendor', 'admin'), getLogoUploadUrl);
 router.post('/me/banner', verifyToken, requireRole('vendor', 'admin'), getBannerUploadUrl);
 router.get('/me/dashboard', verifyToken, requireRole('vendor', 'admin'), getDashboard);
 router.get('/me/analytics', verifyToken, requireRole('vendor', 'admin'), getAnalytics);
 router.get('/me/orders', verifyToken, requireRole('vendor', 'admin'), getVendorOrders);
-router.patch('/me/orders/:orderId/status', verifyToken, requireRole('vendor', 'admin'), validate(updateOrderStatusSchema), updateOrderStatus);
+router.patch('/me/orders/:orderId/status', verifyToken, requireRole('vendor', 'admin'), validateRequest(updateOrderStatusSchema), updateOrderStatus);
 router.get('/me/earnings', verifyToken, requireRole('vendor', 'admin'), getEarnings);
-router.post('/me/payout', verifyToken, requireRole('vendor', 'admin'), validate(requestPayoutSchema), requestPayout);
+router.post('/me/payout', verifyToken, requireRole('vendor', 'admin'), validateRequest(requestPayoutSchema), requestPayout);
 router.post('/me/stripe/connect', verifyToken, requireRole('vendor', 'admin'), createStripeConnect);
 router.get('/me/stripe/connect/callback', verifyToken, requireRole('vendor', 'admin'), stripeConnectCallback);
 

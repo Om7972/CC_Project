@@ -1,6 +1,6 @@
 const express = require('express');
 const { verifyToken } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 const { subscribeSchema, upgradeSchema } = require('../validators/subscriptionValidators');
 const {
   getPlans,
@@ -26,8 +26,8 @@ router.post('/webhook/stripe', express.raw({ type: 'application/json' }), handle
 router.use(verifyToken);
 
 router.get('/current', getCurrentSubscription);
-router.post('/subscribe', validate(subscribeSchema), subscribe);
-router.post('/upgrade', validate(upgradeSchema), upgrade);
+router.post('/subscribe', validateRequest(subscribeSchema), subscribe);
+router.post('/upgrade', validateRequest(upgradeSchema), upgrade);
 router.post('/cancel', cancel);
 router.post('/reactivate', reactivate);
 router.post('/pause', pause);

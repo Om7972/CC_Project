@@ -1,6 +1,6 @@
 const express = require('express');
 const { verifyToken } = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 const {
   updateProfileSchema,
   updatePreferencesSchema,
@@ -36,7 +36,7 @@ router.use(verifyToken);
 
 // Profile routes
 router.get('/profile', getProfile);
-router.patch('/profile', validate(updateProfileSchema), updateProfile);
+router.patch('/profile', validateRequest(updateProfileSchema), updateProfile);
 
 // Avatar routes
 router.post('/avatar', getAvatarUploadUrl);
@@ -44,8 +44,8 @@ router.patch('/avatar/confirm', confirmAvatar);
 router.delete('/avatar', deleteAvatar);
 
 // Password & preferences
-router.patch('/password', validate(updatePasswordSchema), updatePassword);
-router.patch('/preferences', validate(updatePreferencesSchema), updatePreferences);
+router.patch('/password', validateRequest(updatePasswordSchema), updatePassword);
+router.patch('/preferences', validateRequest(updatePreferencesSchema), updatePreferences);
 
 // Wishlist routes
 router.get('/wishlist', getWishlist);
@@ -54,7 +54,7 @@ router.delete('/wishlist/:productId', removeFromWishlist);
 
 // Address routes
 router.get('/addresses', getAddresses);
-router.post('/addresses', validate(addAddressSchema), addAddress);
+router.post('/addresses', validateRequest(addAddressSchema), addAddress);
 router.patch('/addresses/:id', updateAddress);
 router.delete('/addresses/:id', deleteAddress);
 router.patch('/addresses/:id/default', setDefaultAddress);

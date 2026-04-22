@@ -1,14 +1,16 @@
 const validateRequest = (schema) => {
   return (req, res, next) => {
     try {
-      const { body, params, query } = req;
-      const validationData = schema.parse({ body, params, query });
-      req.validatedData = validationData;
+      // Parse only the body with the schema
+      const validatedData = schema.parse(req.body);
+      req.validatedData = validatedData;
+      req.body = validatedData; // Update body with validated data
       next();
     } catch (error) {
       return res.status(400).json({
-        error: 'Validation failed',
-        details: error.errors,
+        success: false,
+        message: 'Validation failed',
+        errors: error.errors || error.issues,
       });
     }
   };

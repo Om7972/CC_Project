@@ -1,7 +1,7 @@
 const express = require('express');
 const { verifyToken } = require('../middleware/auth');
 const { authLimiter } = require('../middleware/rateLimiter');
-const { validate } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 const {
   registerSchema,
   loginSchema,
@@ -35,13 +35,13 @@ const {
 const router = express.Router();
 
 // Public routes
-router.post('/register', authLimiter, validate(registerSchema), register);
-router.post('/login', authLimiter, validate(loginSchema), login);
-router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), forgotPassword);
-router.post('/reset-password', authLimiter, validate(resetPasswordSchema), resetPassword);
-router.post('/verify-email', authLimiter, validate(verifyEmailSchema), verifyEmail);
-router.post('/resend-verification', authLimiter, validate(resendVerificationSchema), resendVerification);
-router.post('/google', authLimiter, validate(googleAuthSchema), googleAuth);
+router.post('/register', authLimiter, validateRequest(registerSchema), register);
+router.post('/login', authLimiter, validateRequest(loginSchema), login);
+router.post('/forgot-password', authLimiter, validateRequest(forgotPasswordSchema), forgotPassword);
+router.post('/reset-password', authLimiter, validateRequest(resetPasswordSchema), resetPassword);
+router.post('/verify-email', authLimiter, validateRequest(verifyEmailSchema), verifyEmail);
+router.post('/resend-verification', authLimiter, validateRequest(resendVerificationSchema), resendVerification);
+router.post('/google', authLimiter, validateRequest(googleAuthSchema), googleAuth);
 
 // Protected routes
 router.post('/logout', verifyToken, logout);
@@ -49,9 +49,9 @@ router.post('/refresh', refreshToken);
 router.get('/me', verifyToken, getMe);
 
 // 2FA routes
-router.post('/2fa/enable', verifyToken, validate(enable2FASchema), enable2FA);
-router.post('/2fa/verify', verifyToken, validate(verify2FASchema), verify2FA);
-router.post('/2fa/disable', verifyToken, validate(disable2FASchema), disable2FA);
+router.post('/2fa/enable', verifyToken, validateRequest(enable2FASchema), enable2FA);
+router.post('/2fa/verify', verifyToken, validateRequest(verify2FASchema), verify2FA);
+router.post('/2fa/disable', verifyToken, validateRequest(disable2FASchema), disable2FA);
 
 // Session management
 router.get('/sessions', verifyToken, getSessions);
